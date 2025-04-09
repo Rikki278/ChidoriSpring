@@ -21,6 +21,8 @@ class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/anime/titles").permitAll()
+                        .requestMatchers("/api/users/avatar").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

@@ -12,16 +12,27 @@ import java.util.function.Function;
 
 @Service
 public class JwtUtil {
-    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+//    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final SecretKey secretKey = Keys.hmacShaKeyFor("mySuperSecretKey1234567890123456".getBytes()); // Минимум 32 символа
 
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))  // 15 минут
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))  // 30 дней
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     // Извлечение email (субъекта) из токена
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject); // Субъект токена - это email

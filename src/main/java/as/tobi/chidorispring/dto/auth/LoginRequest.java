@@ -1,9 +1,9 @@
-package as.tobi.chidorispring.dto;
+package as.tobi.chidorispring.dto.auth;
 
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+public class LoginRequest {
     private String email;
     private String password;
 }

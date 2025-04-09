@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_profile")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserProfile {
@@ -28,7 +29,12 @@ public class UserProfile {
 
     private String firstName;
     private String lastName;
-    private String avatarUrl;
+
+    @Lob
+    @Column(name = "avatar_image")
+    private byte[] profileImage;
+
+    private String profileImageUrl;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;

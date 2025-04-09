@@ -1,37 +1,45 @@
 package as.tobi.chidorispring.controller;
-import as.tobi.chidorispring.dto.LoginRequest;
-import as.tobi.chidorispring.dto.RegisterRequest;
+
+import as.tobi.chidorispring.dto.auth.AuthResponse;
+import as.tobi.chidorispring.dto.auth.LoginRequest;
+import as.tobi.chidorispring.dto.auth.RegisterRequest;
+import as.tobi.chidorispring.dto.auth.RegisterResponse;
+import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.service.UserService;
 import as.tobi.chidorispring.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final UserService userService;
-    private final JwtUtil jwtUtil;
-
-    public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-    }
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        return jwtUtil.generateToken(request.getEmail());
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        String accessToken = jwtUtil.generateToken(request.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(request.getEmail());
+
+        AuthResponse response = new AuthResponse(accessToken, refreshToken);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
-        userService.saveUser(request.getEmail(), request.getPassword());
-        return "User registered";
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
+        UserProfile user = userService.saveUser(request);
+        return ResponseEntity.ok(new RegisterResponse(user.getId(), "Registration successful"));
     }
+
 }
