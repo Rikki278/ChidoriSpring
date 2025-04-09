@@ -50,12 +50,4 @@ public class UserMapper {
                 .build();
     }
 
-    // If you need to turn on the avatar as Base64
-    public UserProfileDTO toUserProfileDtoWithAvatar(UserProfile user) {
-        UserProfileDTO dto = toUserProfileDto(user);
-        if (user.getProfileImage() != null) {
-            dto.setAvatarBase64(java.util.Base64.getEncoder().encodeToString(user.getProfileImage()));
-        }
-        return dto;
-    }
 }

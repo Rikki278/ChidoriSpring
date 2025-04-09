@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import java.io.IOException;
 import java.security.Principal;
 
 @RestController
@@ -25,24 +23,23 @@ public class UserController {
     public ResponseEntity<String> uploadAvatar(
             @RequestParam("file") MultipartFile file,
             Principal principal) {
-        try {
-            String email = principal.getName();
-            userService.updateUserAvatar(email, file);
-            return ResponseEntity.ok("Avatar updated successfully");
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to upload avatar");
-        }
+
+        // get Email with Principal
+        String email = principal.getName();
+
+        // call the method from the service to load the avatar
+        userService.updateUserAvatar(email, file);
+
+        return ResponseEntity.ok("Avatar uploaded successfully");
     }
 
-    @Transactional(readOnly = true)
-    @GetMapping("/avatar")
-    public ResponseEntity<byte[]> getAvatar(Principal principal) {
+    @PatchMapping("/avatar")
+    public ResponseEntity<String> updateAvatar(
+            @RequestParam("file") MultipartFile file,
+            Principal principal) {
         String email = principal.getName();
-        byte[] avatar = userService.getUserAvatar(email);
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG) // или другой подходящий тип
-                .body(avatar);
+        userService.updateUserAvatar(email, file);
+        return ResponseEntity.ok("Avatar updated successfully (PATCH)");
     }
 
     @GetMapping("/profile")
@@ -50,14 +47,6 @@ public class UserController {
     public ResponseEntity<UserProfileDTO> getUserProfile(Principal principal) {
         String email = principal.getName();
         UserProfileDTO userDto = userService.getUserProfile(email);
-        return ResponseEntity.ok(userDto);
-    }
-
-    @Transactional(readOnly = true)
-    @GetMapping("/profile-with-avatar")
-    public ResponseEntity<UserProfileDTO> getUserProfileWithAvatar(Principal principal) {
-        String email = principal.getName();
-        UserProfileDTO userDto = userService.getUserProfileWithAvatar(email);
         return ResponseEntity.ok(userDto);
     }
 

@@ -16,7 +16,6 @@ public class UserProfileDTO {
     private String firstName;
     private String lastName;
     private String profileImageUrl;
-    private String avatarBase64;  // field for Base64 Avatar
     private LocalDateTime lastLogin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

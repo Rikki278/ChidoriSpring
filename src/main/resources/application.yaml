@@ -9,6 +9,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 6MB
+
   logging:
     level:
       org.springframework: DEBUG

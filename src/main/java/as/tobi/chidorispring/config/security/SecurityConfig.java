@@ -1,4 +1,4 @@
-package as.tobi.chidorispring.security;
+package as.tobi.chidorispring.config.security;
 
 import as.tobi.chidorispring.utils.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;

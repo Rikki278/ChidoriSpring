@@ -30,10 +30,6 @@ public class UserProfile {
     private String firstName;
     private String lastName;
 
-    @Lob
-    @Column(name = "avatar_image")
-    private byte[] profileImage;
-
     private String profileImageUrl;
 
     @Column(name = "last_login")
