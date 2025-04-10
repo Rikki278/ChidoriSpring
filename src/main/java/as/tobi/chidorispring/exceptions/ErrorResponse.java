@@ -1,4 +1,4 @@
-package as.tobi.chidorispring.dto.exceptions;
+package as.tobi.chidorispring.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

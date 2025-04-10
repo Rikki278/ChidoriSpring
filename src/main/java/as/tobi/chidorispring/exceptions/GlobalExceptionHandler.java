@@ -1,6 +1,5 @@
 package as.tobi.chidorispring.exceptions;
 
-import as.tobi.chidorispring.dto.exceptions.ErrorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

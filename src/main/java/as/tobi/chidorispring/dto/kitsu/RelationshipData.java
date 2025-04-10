@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AnimeResponse {
-    private List<AnimeData> data;
+public class RelationshipData {
+    private List<ResourceLink> data;
 }

@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class AnimeData {
     private String id;
-    private String type;
     private AnimeAttributes attributes;
+    private AnimeRelationships relationships;
 }

@@ -1,13 +1,16 @@
 package as.tobi.chidorispring.service;
 
 import as.tobi.chidorispring.dto.auth.RegisterRequest;
+import as.tobi.chidorispring.dto.userProfile.UpdateUserProfileDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;
 import as.tobi.chidorispring.mapper.UserMapper;
 import as.tobi.chidorispring.repository.UserRepository;
-import as.tobi.chidorispring.config.CloudinaryService;
+import as.tobi.chidorispring.security.CloudinaryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,9 +18,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
@@ -30,13 +35,35 @@ public class UserService implements UserDetailsService {
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;  // 5 MB = 5242880 byte
 
+
+    public List<UserProfileDTO> getAllUsers() {
+        List<UserProfile> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::toUserProfileDto)
+                .toList();
+    }
+
     public UserProfile saveUser(RegisterRequest request) {
+        log.info("Attempting to register new user with email: {} and username: {}",
+                request.getEmail(), request.getUsername());
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            log.error("Registration failed - email already exists: {}", request.getEmail());
             throw new InternalViolationException(InternalViolationType.USER_ALREADY_EXISTS);
         }
 
+        log.debug("Creating user entity from request...");
         UserProfile user = userMapper.toUserEntity(request);
-        return userRepository.save(user);
+
+        log.info("User entity created. Before save - Email: {}, Username: {}, FirstName: {}, LastName: {}",
+                user.getEmail(), user.getUsername(), user.getFirstName(), user.getLastName());
+
+        UserProfile savedUser = userRepository.save(user);
+
+        log.info("User successfully saved. After save - ID: {}, Email: {}, Username: {}",
+                savedUser.getId(), savedUser.getEmail(), savedUser.getUsername());
+
+        return savedUser;
     }
 
     @Override
@@ -46,15 +73,12 @@ public class UserService implements UserDetailsService {
         return new User(user.getEmail(), user.getPassword(), List.of());
     }
 
-
     public void updateUserAvatar(String email, MultipartFile avatar) {
         UserProfile user = getUserByEmail(email);
 
-        if (avatar.getSize() > MAX_FILE_SIZE) {  // 5 MB
-            throw new InternalViolationException(InternalViolationType.FILE_TOO_LARGE);
-        }
+        imageSizeCheck(avatar);
 
-        String imageUrl = cloudinaryService.uploadAvatar(avatar);
+        String imageUrl = cloudinaryService.uploadProfilePicture(avatar);
         user.setProfileImageUrl(imageUrl);
         userRepository.save(user);
     }
@@ -64,9 +88,45 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserProfileDto(user);
     }
 
-    private UserProfile getUserByEmail(String email) {
+    public UserProfile getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new InternalViolationException(InternalViolationType.USER_IS_NOT_EXISTS));
     }
+
+    public UserProfileWithPostsDTO getUserWithPosts(String email) {
+        UserProfile user = getUserByEmail(email);
+
+        return userMapper.toUserProfileWithPostsDto(user);
+    }
+
+    private void imageSizeCheck(MultipartFile file) {
+        if (file != null && file.getSize() > MAX_FILE_SIZE) {
+            log.warn("File size exceeds limit. Size: {}, Max allowed: {}", file.getSize(), MAX_FILE_SIZE);
+            throw new InternalViolationException(InternalViolationType.FILE_TOO_LARGE);
+        }
+    }
+
+    public void deleteUserById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new InternalViolationException(InternalViolationType.USER_IS_NOT_EXISTS);
+        }
+        userRepository.deleteById(id);
+    }
+
+    public UserProfileDTO updateUser(String email, UpdateUserProfileDTO request) {
+        UserProfile user = getUserByEmail(email);
+
+        if (request.getUsername() != null) user.setUsername(request.getUsername());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+        userRepository.save(user);
+        return userMapper.toUserProfileDto(user);
+    }
+
+
 }
 
