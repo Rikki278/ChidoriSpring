@@ -3,10 +3,11 @@ package as.tobi.chidorispring.dto.kitsu.response;
 import as.tobi.chidorispring.dto.kitsu.PosterImage;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class AnimeFullInfoResponse {
+public class AnimeFullInfoResponse implements Serializable {
     private String id;
     private String englishTitle;
     private String japaneseTitle;

@@ -1,4 +1,4 @@
-package as.tobi.chidorispring.security;
+package as.tobi.chidorispring.service;
 
 import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;

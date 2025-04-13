@@ -9,6 +9,30 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # password:
+      connect-timeout: 5000ms
+      client-type: lettuce
+      lettuce:
+        pool:
+          enabled: false
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+          time-between-eviction-runs: 120s
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000 # 1 hour
+      key-prefix: "anime:"
+      cache-null-values: false
+      use-key-prefix: true
+
   servlet:
     multipart:
       max-file-size: 6MB

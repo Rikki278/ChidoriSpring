@@ -9,6 +9,10 @@ import as.tobi.chidorispring.exceptions.AnimeViolationException;
 import as.tobi.chidorispring.exceptions.AnimeViolationType;
 import as.tobi.chidorispring.mapper.AnimeMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,12 +25,18 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "animeCache")
+@Slf4j
 public class KitsuService {
     // web client for making http requests to kitsu api
     private final WebClient kitsuWebClient;
     // converts raw api data to our application's format
     private final AnimeMapper animeMapper;
 
+    @Cacheable(
+            key = "{'page', #page, 'size', #size}",
+            unless = "#result == null || #result.data.isEmpty()"
+    )
     // gets a page of anime with genre information
     public Mono<PaginatedAnimeResponse> getAnimeWithGenres(int page, int size) {
         // validate pagination parameters first
@@ -59,6 +69,10 @@ public class KitsuService {
                 .map(response -> animeMapper.toPaginatedResponse(response, page, size));
     }
 
+    @Cacheable(
+            key = "{'search', #query}",
+            unless = "#result == null || #result.isEmpty()"
+    )
     // searches through all available pages to find matching anime
     public Mono<List<AnimeSimpleResponse>> searchAnimeAcrossAllPages(String query) {
         // validate search query isn't empty
@@ -75,6 +89,8 @@ public class KitsuService {
                                                                  List<AnimeSimpleResponse> accumulatedResults) {
         // kitsu api allows maximum 20 items per request
         final int PAGE_SIZE = 20;
+
+
 
         // building the search request
         return kitsuWebClient.get()
@@ -118,6 +134,10 @@ public class KitsuService {
                 });
     }
 
+    @Cacheable(
+            key = "{'fullSearch', #partialTitle, 'limit', #limit}",
+            unless = "#result == null || #result.isEmpty()"
+    )
     // finds anime by partial title match (like "nar" for "naruto")
     public Mono<List<AnimeFullInfoResponse>> getAnimeFullInfoByTitle(String partialTitle, int limit) {
         // validate search parameters first
@@ -189,5 +209,22 @@ public class KitsuService {
                     return matchesCanonical || matchesAnyTitle;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @CacheEvict(
+            value = "animeCache",
+            allEntries = true,
+            beforeInvocation = true
+    )
+    public void evictAllCache() {
+        log.info("Evicting all animeCache entries");
+    }
+
+    @CacheEvict(
+            value = "animeCache",
+            key = "{'page', #page, 'size', #size}"
+    )
+    public void evictPaginatedCache(int page, int size) {
+        log.info("Evicting cache for page {} size {}", page, size);
     }
 }
