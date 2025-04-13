@@ -5,7 +5,6 @@ import as.tobi.chidorispring.dto.characterPost.UpdateCharacterPostDTO;
 import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;
 import as.tobi.chidorispring.mapper.CharacterPostMapper;
-import as.tobi.chidorispring.security.CloudinaryService;
 import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.repository.CharacterPostRepository;

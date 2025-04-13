@@ -9,7 +9,6 @@ import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;
 import as.tobi.chidorispring.mapper.UserMapper;
 import as.tobi.chidorispring.repository.UserRepository;
-import as.tobi.chidorispring.security.CloudinaryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
