@@ -64,7 +64,7 @@ public class KitsuService {
                 // parse the response body
                 .bodyToMono(KitsuResponse.class)
                 // handle empty responses from api
-                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_RESPONSE_FORMAT)))
+                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_KITSU_RESPONSE_FORMAT)))
                 // transform the api response to our paginated format
                 .map(response -> animeMapper.toPaginatedResponse(response, page, size));
     }
@@ -108,7 +108,7 @@ public class KitsuService {
                         Mono.error(new AnimeViolationException(AnimeViolationType.KITSU_API_ERROR)))
                 .bodyToMono(KitsuResponse.class)
                 // handle invalid empty responses
-                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_RESPONSE_FORMAT)))
+                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_KITSU_RESPONSE_FORMAT)))
                 .flatMap(response -> {
                     // convert each anime in this page's results to our format
                     List<AnimeSimpleResponse> pageResults = response.getData().stream()
@@ -163,7 +163,7 @@ public class KitsuService {
                         Mono.error(new AnimeViolationException(AnimeViolationType.KITSU_API_ERROR)))
                 .bodyToMono(KitsuResponse.class)
                 // handle invalid empty responses
-                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_RESPONSE_FORMAT)))
+                .switchIfEmpty(Mono.error(new AnimeViolationException(AnimeViolationType.INVALID_KITSU_RESPONSE_FORMAT)))
                 .flatMap(response -> {
                     // filter to only close matches
                     List<AnimeData> matchingAnime = findMatchingAnime(response.getData(), partialTitle);
