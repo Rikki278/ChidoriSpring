@@ -81,6 +81,13 @@ public class UserController {
         return ResponseEntity.ok(updated);
     }
 
+    @GetMapping("/{id}/profile-posts")
+    @Transactional(readOnly = true)
+    public ResponseEntity<UserProfileWithPostsDTO> getUserProfileWithPostsById(@PathVariable Long id) {
+        UserProfileWithPostsDTO userDto = userService.getUserWithPostsById(id);
+        return ResponseEntity.ok(userDto);
+    }
+
 
 
 }

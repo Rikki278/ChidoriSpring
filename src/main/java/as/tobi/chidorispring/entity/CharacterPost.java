@@ -29,9 +29,12 @@ public class CharacterPost {
     @Size(min = 2, max = 100, message = "Anime name must be between 2 and 100 characters")
     private String anime;
 
-    @NotBlank(message = "Anime genre cannot be empty")
-    @Size(max = 50, message = "Anime genre must not exceed 50 characters")
-    private String animeGenre;
+    @NotEmpty(message = "Anime genres cannot be empty")
+    @Size(max = 50, message = "Each anime genre must not exceed 50 characters")
+    @ElementCollection
+    @CollectionTable(name = "character_post_genres", joinColumns = @JoinColumn(name = "character_post_id"))
+    @Column(name = "anime_genre")
+    private List<String> animeGenre;
 
     @NotBlank(message = "Description cannot be empty")
     @Size(max = 1000, message = "Description must not exceed 1000 characters")

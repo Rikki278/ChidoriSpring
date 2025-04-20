@@ -126,6 +126,12 @@ public class UserService implements UserDetailsService {
         return userMapper.toUserProfileDto(user);
     }
 
+    public UserProfileWithPostsDTO getUserWithPostsById(Long id) {
+        UserProfile user = userRepository.findById(id)
+                .orElseThrow(() -> new InternalViolationException(InternalViolationType.USER_IS_NOT_EXISTS));
+        return userMapper.toUserProfileWithPostsDto(user);
+    }
+
 
 }
 

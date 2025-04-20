@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -28,6 +30,22 @@ public class CharacterPostController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<CharacterPostDTO>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<CharacterPostDTO> posts = postService.findAllPosts(page, size);
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/{postId}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<CharacterPostDTO> getPostById(@PathVariable Long postId) {
+        CharacterPostDTO post = postService.findPostById(postId);
+        return ResponseEntity.ok(post);
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CharacterPostDTO> createPost(
