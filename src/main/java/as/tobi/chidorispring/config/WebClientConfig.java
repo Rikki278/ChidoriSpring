@@ -21,4 +21,17 @@ public class WebClientConfig {
                 }))
                 .build();
     }
+
+    @Bean
+    public WebClient jikanWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://api.jikan.moe/v4")
+                .defaultHeader("Accept", "application/json")
+                .defaultHeader("User-Agent", "AnimeApp/1.0")
+                .filter(ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                    System.out.println("Request: " + clientRequest.url());
+                    return Mono.just(clientRequest);
+                }))
+                .build();
+    }
 }
