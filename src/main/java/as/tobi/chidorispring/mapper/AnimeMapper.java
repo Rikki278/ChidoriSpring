@@ -7,6 +7,7 @@ import as.tobi.chidorispring.dto.kitsu.PosterImage;
 import as.tobi.chidorispring.dto.kitsu.response.AnimeFullInfoResponse;
 import as.tobi.chidorispring.dto.kitsu.response.AnimeSimpleResponse;
 import as.tobi.chidorispring.dto.kitsu.response.PaginatedAnimeResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 
 @Component
+@Slf4j
 public class AnimeMapper {
 
     // converts kitsu api response to paginated response with anime list and metadata
@@ -27,7 +29,7 @@ public class AnimeMapper {
 
         // build pagination response
         PaginatedAnimeResponse response = new PaginatedAnimeResponse();
-        response.setData(animeList);
+        response.setData(animeList);;
         response.setCurrentPage(page);
         response.setPageSize(size);
         response.setTotalItems(kitsuResponse.getMeta().getCount());
@@ -39,6 +41,7 @@ public class AnimeMapper {
     // converts anime data to simplified response with title and genres
     public AnimeSimpleResponse toAnimeSimpleResponse(AnimeData animeData, List<Included> included) {
         AnimeSimpleResponse dto = new AnimeSimpleResponse();
+        dto.setId(animeData.getId());
         dto.setTitle(animeData.getAttributes().getCanonicalTitle());
 
         // safely map genres if relationships exist
