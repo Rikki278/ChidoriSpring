@@ -1,6 +1,6 @@
 package as.tobi.chidorispring.service;
 
-import as.tobi.chidorispring.dto.jikan.*;
+import as.tobi.chidorispring.dto.jikan.JikanAnimeData;
 import as.tobi.chidorispring.dto.jikan.response.AnimeFullInfoResponse;
 import as.tobi.chidorispring.dto.jikan.response.AnimeSimpleResponse;
 import as.tobi.chidorispring.dto.jikan.response.JikanResponse;
