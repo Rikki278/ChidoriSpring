@@ -1,15 +1,22 @@
 package as.tobi.chidorispring.exceptions;
 
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class InternalViolationException extends RuntimeException {
 
-    private final InternalViolationType type;
+    private InternalViolationType type;
 
     public InternalViolationException(InternalViolationType type) {
-        super(type.getMessage());
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "InternalViolationException{" +
+                "type=" + type +
+                '}';
+    }
 }

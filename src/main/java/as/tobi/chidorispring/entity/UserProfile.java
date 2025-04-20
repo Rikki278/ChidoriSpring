@@ -1,8 +1,10 @@
 package as.tobi.chidorispring.entity;
 
 import as.tobi.chidorispring.enums.UserRole;
+import as.tobi.chidorispring.security.validation.ValidEmail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,20 +25,31 @@ public class UserProfile implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Username cannot be empty")
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Email should be valid")
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull(message = "Role cannot be null")
     private UserRole role = UserRole.ROLE_USER;
 
+    @Size(max = 50, message = "First name must not exceed 50 characters")
     private String firstName;
+
+    @Size(max = 50, message = "Last name must not exceed 50 characters")
     private String lastName;
 
+    @Pattern(regexp = "^(https?://.*\\.(?:png|jpg|jpeg|gif))?$", message = "Profile image URL must be a valid image URL")
     private String profileImageUrl;
 
     @Column(name = "last_login")
@@ -48,7 +61,6 @@ public class UserProfile implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(name = "refresh_token")
     private String refreshToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

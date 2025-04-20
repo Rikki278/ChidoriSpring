@@ -1,16 +1,7 @@
 package as.tobi.chidorispring.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,15 +21,29 @@ public class CharacterPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Character name cannot be empty")
+    @Size(min = 2, max = 100, message = "Character name must be between 2 and 100 characters")
     private String characterName;
+
+    @NotBlank(message = "Anime cannot be empty")
+    @Size(min = 2, max = 100, message = "Anime name must be between 2 and 100 characters")
     private String anime;
+
+    @NotBlank(message = "Anime genre cannot be empty")
+    @Size(max = 50, message = "Anime genre must not exceed 50 characters")
     private String animeGenre;
+
+    @NotBlank(message = "Description cannot be empty")
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
+
     @Column(name = "character_image_url")
+    @Pattern(regexp = "^(https?://.*\\.(?:png|jpg|jpeg|gif))?$", message = "Character image URL must be a valid image URL")
     private String characterImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @NotNull(message = "User cannot be null")
     private UserProfile user;
 
     @OneToMany(mappedBy = "characterPost", cascade = CascadeType.ALL, orphanRemoval = true)
