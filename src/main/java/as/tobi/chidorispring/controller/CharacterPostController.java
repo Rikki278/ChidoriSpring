@@ -77,6 +77,16 @@ public class CharacterPostController {
         return ResponseEntity.ok(updatedPost);
     }
 
+    @DeleteMapping("/{postId}")
+    @Transactional
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId,
+            Principal principal) {
+        Long currentUserId = userService.getUserByEmail(principal.getName()).getId();
+        postService.deletePost(postId, currentUserId);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{postId}/favorite")
     @Transactional
     public ResponseEntity<Void> addFavoritePost(

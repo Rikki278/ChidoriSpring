@@ -12,4 +12,5 @@ public interface UserFavoritePostRepository extends JpaRepository<UserFavoritePo
     void deleteByUserIdAndCharacterPostId(Long userId, Long characterPostId);
     List<UserFavoritePost> findByUserId(Long userId);
 
+    void deleteByCharacterPostId(Long postId);
 }
