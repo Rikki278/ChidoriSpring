@@ -18,7 +18,12 @@ public enum InternalViolationType {
     INVALID_IMAGE_URL(10007, "Invalid image URL", HttpStatus.BAD_REQUEST),
     INVALID_POST(10008, "Can't find this post", HttpStatus.BAD_REQUEST),
     POST_IS_NOT_EXISTS(10009, "Post is not exists", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED_ACCESS(10010, "Unauthorized access", HttpStatus.BAD_REQUEST);
+    UNAUTHORIZED_ACCESS(10010, "Unauthorized access", HttpStatus.BAD_REQUEST),
+    ALREADY_SAVED(10011, "Already saved", HttpStatus.BAD_REQUEST),
+    NOT_SAVED(10012, "Not saved", HttpStatus.BAD_REQUEST),
+    ALREADY_LIKED(10013, "Already liked", HttpStatus.BAD_REQUEST),
+    NOT_LIKED(10014, "Not liked", HttpStatus.BAD_REQUEST),
+    COMMENT_NOT_FOUND(10015, "Comment not found", HttpStatus.NOT_FOUND),;
 
 
     private final int code;

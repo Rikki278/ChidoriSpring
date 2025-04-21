@@ -1,10 +1,13 @@
 package as.tobi.chidorispring.mapper;
 
+import as.tobi.chidorispring.dto.characterPost.CharacterPostCommentDTO;
 import as.tobi.chidorispring.dto.characterPost.CharacterPostDTO;
 import as.tobi.chidorispring.dto.characterPost.UpdateCharacterPostDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileShortDTO;
 import as.tobi.chidorispring.entity.CharacterPost;
+import as.tobi.chidorispring.entity.CharacterPostComment;
 import as.tobi.chidorispring.entity.UserProfile;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +16,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class CharacterPostMapper {
     @Autowired
-    private  ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-    public CharacterPostDTO toDto(CharacterPost post) {
+    @Autowired
+    private UserFavoritePostRepository userFavoritePostRepository;
+
+    public CharacterPostDTO toDto(CharacterPost post, Long currentUserId) {
+        boolean isFavorited = currentUserId != null && userFavoritePostRepository.existsByUserIdAndCharacterPostId(currentUserId, post.getId());
+
         return CharacterPostDTO.builder()
                 .id(post.getId())
                 .characterName(post.getCharacterName())
@@ -26,6 +34,24 @@ public class CharacterPostMapper {
                 .author(toUserShortDto(post.getUser()))
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .likeCount(post.getLikes().size()) // Calculate like count
+                .commentCount(post.getComments().size()) // Calculate comment count
+                .isFavorited(isFavorited)
+                .build();
+    }
+
+    // Overload for cases where currentUserId is not provided
+    public CharacterPostDTO toDto(CharacterPost post) {
+        return toDto(post, null);
+    }
+
+    public CharacterPostCommentDTO toCommentDto(CharacterPostComment comment) {
+        return CharacterPostCommentDTO.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .author(toUserShortDto(comment.getUser()))
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .build();
     }
 
@@ -44,12 +70,6 @@ public class CharacterPostMapper {
         if (dto.getAnime() != null) {
             entity.setAnime(dto.getAnime());
         }
-        if (dto.getCharacterName() != null) {
-            entity.setCharacterName(dto.getCharacterName());
-        }
-        if (dto.getAnime() != null) {
-            entity.setAnime(dto.getAnime());
-        }
         if (dto.getAnimeGenre() != null) {
             entity.setAnimeGenre(dto.getAnimeGenre());
         }
@@ -57,7 +77,6 @@ public class CharacterPostMapper {
             entity.setDescription(dto.getDescription());
         }
     }
-
 
     public UpdateCharacterPostDTO parseUpdateJson(String json) throws JsonProcessingException {
         return objectMapper.readValue(json, UpdateCharacterPostDTO.class);

@@ -1,10 +1,9 @@
 package as.tobi.chidorispring.repository;
 
-import as.tobi.chidorispring.entity.LikesEntity;
+import as.tobi.chidorispring.entity.CharacterPostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface LikeRepository extends JpaRepository<LikesEntity, Long> {
-
+public interface LikeRepository extends JpaRepository<CharacterPostLike, Long> {
+    boolean existsByCharacterPostIdAndUserId(Long characterPostId, Long userId);
+    void deleteByCharacterPostIdAndUserId(Long characterPostId, Long userId);
 }
