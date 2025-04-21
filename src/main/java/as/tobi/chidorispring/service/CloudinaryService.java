@@ -5,12 +5,14 @@ import as.tobi.chidorispring.exceptions.InternalViolationType;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @Component
+@Slf4j
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
@@ -36,29 +38,58 @@ public class CloudinaryService {
     // Image removal method
     public void deleteImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
+            log.debug("Image URL is null or empty, skipping deletion");
             return;
         }
 
         try {
-            // Извлекаем public_id из URL
+            // Public_id from URL
             String publicId = extractPublicIdFromUrl(imageUrl);
+
             if (publicId != null) {
-                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                log.debug("Deleting image from Cloudinary with public_id: {}", publicId);
+                var result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+                log.info("Image deletion result: {}", result);
+            } else {
+                log.warn("Could not extract public_id from URL: {}", imageUrl);
             }
         } catch (IOException e) {
+            log.error("Failed to delete image from Cloudinary. URL: {}, Error: {}", imageUrl, e.getMessage());
             throw new InternalViolationException(InternalViolationType.FILE_DELETION_ERROR);
         }
     }
 
-
     private String extractPublicIdFromUrl(String imageUrl) {
-
         try {
-            String[] parts = imageUrl.split("/upload/")[1].split("/");
-            String lastPart = parts[parts.length - 1];
-            // We delete the version (v1234567) if there is
-            return lastPart.contains("v") ? lastPart.split("v")[1].substring(1) : lastPart.split("\\.")[0];
+            // example URL: https://res.cloudinary.com/djmpkplp1/image/upload/v1744228994/folder/rrhwafrprajyoygexwyv.jpg
+            String[] uploadParts = imageUrl.split("/upload/");
+            if (uploadParts.length < 2) {
+                log.error("Invalid Cloudinary URL format (missing /upload/): {}", imageUrl);
+                throw new InternalViolationException(InternalViolationType.INVALID_IMAGE_URL);
+            }
+
+            // take part after/Upload/: V1744228994/Folder/RRHWAFRPRAJYOYGEXWYV.jpg
+            String afterUpload = uploadParts[1];
+            String[] parts = afterUpload.split("/");
+
+            // if there is a version (V1744228994), it will be the first element
+            int startIndex = parts[0].startsWith("v") ? 1 : 0;
+
+            // collect public_id, starting from the Startindex index
+            StringBuilder publicIdBuilder = new StringBuilder();
+            for (int i = startIndex; i < parts.length; i++) {
+                publicIdBuilder.append(parts[i]);
+                if (i < parts.length - 1) {
+                    publicIdBuilder.append("/");
+                }
+            }
+
+            String publicIdWithExtension = publicIdBuilder.toString(); // folder/rrhwafrprajyoygexwyv.jpg
+            String publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf(".")); // folder/rrhwafrprajyoygexwyv
+            log.debug("Extracted public_id: {} from URL: {}", publicId, imageUrl);
+            return publicId;
         } catch (Exception e) {
+            log.error("Failed to extract public_id from URL: {}. Error: {}", imageUrl, e.getMessage());
             throw new InternalViolationException(InternalViolationType.INVALID_IMAGE_URL);
         }
     }

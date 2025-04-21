@@ -8,6 +8,7 @@ import as.tobi.chidorispring.mapper.CharacterPostMapper;
 import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.repository.CharacterPostRepository;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class CharacterPostService {
     private CharacterPostMapper characterPostMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserFavoritePostRepository favoritePostRepository; // Добавляем зависимость
+
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -116,6 +120,41 @@ public class CharacterPostService {
         log.info("Post ID: {} updated successfully", postId);
 
         return characterPostMapper.toDto(updatedPost, currentUserId);
+    }
+
+    @Transactional
+    @CacheEvict(value = {"posts", "post"}, allEntries = true)
+    public void deletePost(Long postId, Long currentUserId) {
+        log.debug("Deleting post ID: {} by user ID: {}", postId, currentUserId);
+        CharacterPost post = postRepository.findById(postId)
+                .orElseThrow(() -> {
+                    log.error("Post not found for ID: {}", postId);
+                    return new InternalViolationException(InternalViolationType.POST_IS_NOT_EXISTS);
+                });
+
+        // check that the user is the author of the post
+        if (!post.getUser().getId().equals(currentUserId)) {
+            log.warn("Unauthorized delete attempt. User ID: {} tried to delete post ID: {} owned by user ID: {}",
+                    currentUserId, postId, post.getUser().getId());
+            throw new InternalViolationException(InternalViolationType.UNAUTHORIZED_ACCESS);
+        }
+
+        // remove the image from Cloudinary, if it is
+        if (post.getCharacterImageUrl() != null) {
+            log.debug("Removing character image for post ID: {} from Cloudinary", postId);
+            cloudinaryService.deleteImage(post.getCharacterImageUrl());
+            log.info("Character image removed for post ID: {} from Cloudinary", postId);
+        }
+
+        // delete entries in the chosen
+        favoritePostRepository.deleteByCharacterPostId(postId);
+        log.debug("Favorite records for post ID: {} removed", postId);
+
+        // Likes and comments will be deleted automatically thanks to cascade = CASCADETYPE.ALL and Orphanremoval = True
+        // essentially Characterpost (connections with Likes and Comments)
+
+        postRepository.delete(post);
+        log.info("Post ID: {} deleted successfully by user ID: {}", postId, currentUserId);
     }
 
     private void managePostImage(CharacterPost post, UpdateCharacterPostDTO updateDTO) {
