@@ -5,8 +5,10 @@ import as.tobi.chidorispring.dto.characterPost.UserCharacterPostDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
 import as.tobi.chidorispring.entity.CharacterPost;
+import as.tobi.chidorispring.entity.UserFavoritePost;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.enums.UserRole;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,10 +22,12 @@ import java.util.List;
 public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
+    private final UserFavoritePostRepository userFavoritePostRepository;
 
     @Autowired
-    public UserMapper(PasswordEncoder passwordEncoder) {
+    public UserMapper(PasswordEncoder passwordEncoder, UserFavoritePostRepository userFavoritePostRepository) {
         this.passwordEncoder = passwordEncoder;
+        this.userFavoritePostRepository = userFavoritePostRepository;
     }
 
     public UserProfile toUserEntity(RegisterRequest request) {
@@ -57,7 +61,11 @@ public class UserMapper {
 
     public UserProfileWithPostsDTO toUserProfileWithPostsDto(UserProfile user) {
         List<UserCharacterPostDTO> postDtos = user.getCharacterPosts().stream()
-                .map(this::toCharacterPostDto)
+                .map(post -> toCharacterPostDto(post, user.getId()))
+                .toList();
+
+        List<UserCharacterPostDTO> favoritePostDtos = user.getFavoritePosts().stream()
+                .map(favoritePost -> toCharacterPostDto(favoritePost.getCharacterPost(), user.getId()))
                 .toList();
 
         return UserProfileWithPostsDTO.builder()
@@ -72,10 +80,13 @@ public class UserMapper {
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .characterPosts(postDtos)
+                .favoritePosts(favoritePostDtos)
                 .build();
     }
 
-    private UserCharacterPostDTO toCharacterPostDto(CharacterPost post) {
+    private UserCharacterPostDTO toCharacterPostDto(CharacterPost post, Long currentUserId) {
+        boolean isFavorited = userFavoritePostRepository.existsByUserIdAndCharacterPostId(currentUserId, post.getId());
+
         return UserCharacterPostDTO.builder()
                 .id(post.getId())
                 .characterName(post.getCharacterName())
@@ -85,6 +96,9 @@ public class UserMapper {
                 .characterImageUrl(post.getCharacterImageUrl())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .likeCount(post.getLikes().size()) // Calculate like count
+                .commentCount(post.getComments().size()) // Calculate comment count
+                .isFavorited(isFavorited)
                 .build();
     }
 }

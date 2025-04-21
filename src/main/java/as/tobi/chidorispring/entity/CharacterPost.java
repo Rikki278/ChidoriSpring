@@ -1,5 +1,6 @@
 package as.tobi.chidorispring.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -50,10 +52,14 @@ public class CharacterPost {
     private UserProfile user;
 
     @OneToMany(mappedBy = "characterPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LikesEntity> likes;
+    @JsonIgnore
+    @Builder.Default
+    private List<CharacterPostLike> likes = new ArrayList<>();
 
     @OneToMany(mappedBy = "characterPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments;
+    @JsonIgnore
+    @Builder.Default
+    private List<CharacterPostComment> comments = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

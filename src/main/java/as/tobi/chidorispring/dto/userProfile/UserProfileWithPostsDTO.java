@@ -5,12 +5,13 @@ import as.tobi.chidorispring.enums.UserRole;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
-public class UserProfileWithPostsDTO {
+public class UserProfileWithPostsDTO implements Serializable {
     private Long id;
     private String username;
     private String email;
@@ -22,4 +23,5 @@ public class UserProfileWithPostsDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<UserCharacterPostDTO> characterPosts;
+    private List<UserCharacterPostDTO> favoritePosts;
 }
