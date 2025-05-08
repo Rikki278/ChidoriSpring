@@ -1,8 +1,13 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/chidori
-    username: chidori
-    password: chidori
+#    url: jdbc:postgresql://localhost:5432/chidori
+#    username: chidori
+#    password: chidori
+
+    url: ${DB_LINK}
+    username: ${DB_NAME}
+    password: ${DB_PW}
+
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -11,9 +16,10 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      # password:
+      host: ${RD_HOST}
+      port: 50141
+      username: default
+      password: ${RD_PW}
       connect-timeout: 5000ms
       client-type: lettuce
       lettuce:
@@ -41,3 +47,8 @@ spring:
   logging:
     level:
       org.springframework: DEBUG
+
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME}
+    api-key: ${CLOUDINARY_API_KEY}
+    api-secret: ${CLOUDINARY_API_SECRET}
