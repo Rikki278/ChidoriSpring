@@ -14,6 +14,8 @@ spring:
       ddl-auto: update
     show-sql: true
 
+
+
   data:
     redis:
       host: ${RD_HOST}
@@ -52,3 +54,6 @@ spring:
     cloud-name: ${CLOUDINARY_CLOUD_NAME}
     api-key: ${CLOUDINARY_API_KEY}
     api-secret: ${CLOUDINARY_API_SECRET}
+
+server:
+  port: 8080
