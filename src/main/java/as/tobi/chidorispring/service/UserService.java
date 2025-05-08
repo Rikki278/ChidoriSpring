@@ -84,6 +84,12 @@ public class UserService implements UserDetailsService {
         return new User(user.getEmail(), user.getPassword(), List.of());
     }
 
+    public UserProfile loadUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new InternalViolationException(InternalViolationType.USER_IS_NOT_EXISTS));
+    }
+
+
     public void updateUserAvatar(String email, MultipartFile avatar) {
         UserProfile user = getUserByEmail(email);
 
