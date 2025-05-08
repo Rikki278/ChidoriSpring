@@ -23,7 +23,10 @@ public enum InternalViolationType {
     NOT_SAVED(10012, "Not saved", HttpStatus.BAD_REQUEST),
     ALREADY_LIKED(10013, "Already liked", HttpStatus.BAD_REQUEST),
     NOT_LIKED(10014, "Not liked", HttpStatus.BAD_REQUEST),
-    COMMENT_NOT_FOUND(10015, "Comment not found", HttpStatus.NOT_FOUND),;
+    COMMENT_NOT_FOUND(10015, "Comment not found", HttpStatus.NOT_FOUND),
+    INVALID_CHAT_ROOM(10016, "Invalid chat room" , HttpStatus.BAD_REQUEST),
+    CHAT_ROOM_ALREADY_EXISTS(10017, "Chat room already exists" , HttpStatus.BAD_REQUEST),
+    CHAT_ROOM_NOT_FOUND(10018, "Chat room not found" , HttpStatus.BAD_REQUEST);
 
 
     private final int code;

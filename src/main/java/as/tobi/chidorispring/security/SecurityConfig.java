@@ -19,6 +19,9 @@ class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/anime/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
+                        .requestMatchers("/ws-chat/**").permitAll()
                         .requestMatchers("/api/users/avatar").authenticated()
                         .requestMatchers("/api/posts/**").authenticated()
                         .anyRequest().authenticated()
