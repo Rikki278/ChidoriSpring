@@ -162,7 +162,6 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>1.18.38</version>
-
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -170,14 +169,16 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.4.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
-                        </exclude>
-                    </excludes>
+                    <mainClass>as.tobi.chidorispring.ChidoriSpringApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
