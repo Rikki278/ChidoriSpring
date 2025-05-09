@@ -25,6 +25,8 @@ public class UserMapper {
     private final PasswordEncoder passwordEncoder;
     private final UserFavoritePostRepository userFavoritePostRepository;
 
+    private final String pfp = "https://res.cloudinary.com/djmpkplp1/image/upload/v1746816860/ChatGPT_Image_9_%D1%82%D1%80%D0%B0%D0%B2._2025_%D1%80._20_41_06_myu8yb.png";
+
     @Autowired
     public UserMapper(PasswordEncoder passwordEncoder, UserFavoritePostRepository userFavoritePostRepository) {
         this.passwordEncoder = passwordEncoder;
@@ -39,6 +41,7 @@ public class UserMapper {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(UserRole.ROLE_USER)
+                .profileImageUrl(pfp)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
