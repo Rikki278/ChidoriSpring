@@ -1,21 +1,22 @@
 package as.tobi.chidorispring.mapper;
 
-import as.tobi.chidorispring.dto.auth.RegisterRequest;
-import as.tobi.chidorispring.dto.characterPost.UserCharacterPostDTO;
-import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
-import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
-import as.tobi.chidorispring.entity.CharacterPost;
-import as.tobi.chidorispring.entity.UserFavoritePost;
-import as.tobi.chidorispring.entity.UserProfile;
-import as.tobi.chidorispring.enums.UserRole;
-import as.tobi.chidorispring.repository.UserFavoritePostRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import as.tobi.chidorispring.dto.auth.RegisterRequest;
+import as.tobi.chidorispring.dto.characterPost.UserCharacterPostDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileShortDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
+import as.tobi.chidorispring.entity.CharacterPost;
+import as.tobi.chidorispring.entity.UserProfile;
+import as.tobi.chidorispring.enums.UserRole;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -23,6 +24,8 @@ public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
     private final UserFavoritePostRepository userFavoritePostRepository;
+
+    private final String pfp = "https://res.cloudinary.com/djmpkplp1/image/upload/v1746816860/ChatGPT_Image_9_%D1%82%D1%80%D0%B0%D0%B2._2025_%D1%80._20_41_06_myu8yb.png";
 
     @Autowired
     public UserMapper(PasswordEncoder passwordEncoder, UserFavoritePostRepository userFavoritePostRepository) {
@@ -38,6 +41,7 @@ public class UserMapper {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(UserRole.ROLE_USER)
+                .profileImageUrl(pfp)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -99,6 +103,14 @@ public class UserMapper {
                 .likeCount(post.getLikes().size()) // Calculate like count
                 .commentCount(post.getComments().size()) // Calculate comment count
                 .isFavorited(isFavorited)
+                .build();
+    }
+
+    public UserProfileShortDTO toUserProfileShortDto(UserProfile user) {
+        return UserProfileShortDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
 }
