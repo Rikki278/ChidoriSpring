@@ -1,25 +1,36 @@
 package as.tobi.chidorispring.controller;
 
+import java.security.Principal;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import as.tobi.chidorispring.dto.characterPost.CharacterPostCommentDTO;
 import as.tobi.chidorispring.dto.characterPost.CharacterPostDTO;
 import as.tobi.chidorispring.dto.characterPost.CommentRequestDTO;
 import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;
-import as.tobi.chidorispring.service.InteractionService;
 import as.tobi.chidorispring.service.CharacterPostService;
+import as.tobi.chidorispring.service.InteractionService;
 import as.tobi.chidorispring.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.security.Principal;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -50,9 +61,14 @@ public class CharacterPostController {
     public ResponseEntity<List<CharacterPostDTO>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection,
+            @RequestParam(required = false) String anime,
+            @RequestParam(required = false) List<String> genres,
             Principal principal) {
         String userEmail = principal != null ? principal.getName() : null;
-        List<CharacterPostDTO> posts = postService.findAllPosts(page, size, userEmail);
+        List<CharacterPostDTO> posts = postService.findAllPosts(
+            page, size, userEmail, sortBy, sortDirection, anime, genres);
         return ResponseEntity.ok(posts);
     }
 
@@ -161,4 +177,16 @@ public class CharacterPostController {
         List<CharacterPostCommentDTO> comments = interactionService.getCommentsByPostId(postId);
         return ResponseEntity.ok(comments);
     }
+
+    @GetMapping("/recommended")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<CharacterPostDTO>> getRecommendedPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Principal principal) {
+        String userEmail = principal.getName();
+        List<CharacterPostDTO> posts = postService.getRecommendedPosts(userEmail, page, size);
+        return ResponseEntity.ok(posts);
+    }
+
 }

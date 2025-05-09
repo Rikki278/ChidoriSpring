@@ -1,29 +1,34 @@
 package as.tobi.chidorispring.service;
 
-import as.tobi.chidorispring.dto.characterPost.CharacterPostDTO;
-import as.tobi.chidorispring.dto.characterPost.UpdateCharacterPostDTO;
-import as.tobi.chidorispring.exceptions.InternalViolationException;
-import as.tobi.chidorispring.exceptions.InternalViolationType;
-import as.tobi.chidorispring.mapper.CharacterPostMapper;
-import as.tobi.chidorispring.entity.CharacterPost;
-import as.tobi.chidorispring.entity.UserProfile;
-import as.tobi.chidorispring.repository.CharacterPostRepository;
-import as.tobi.chidorispring.repository.UserFavoritePostRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import as.tobi.chidorispring.dto.characterPost.CharacterPostDTO;
+import as.tobi.chidorispring.dto.characterPost.UpdateCharacterPostDTO;
+import as.tobi.chidorispring.entity.CharacterPost;
+import as.tobi.chidorispring.entity.UserProfile;
+import as.tobi.chidorispring.exceptions.InternalViolationException;
+import as.tobi.chidorispring.exceptions.InternalViolationType;
+import as.tobi.chidorispring.mapper.CharacterPostMapper;
+import as.tobi.chidorispring.repository.CharacterPostRepository;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
+import as.tobi.chidorispring.repository.UserRelationshipRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -37,8 +42,9 @@ public class CharacterPostService {
     @Autowired
     private UserService userService;
     @Autowired
-    private UserFavoritePostRepository favoritePostRepository; // Добавляем зависимость
-
+    private UserFavoritePostRepository favoritePostRepository;
+    @Autowired
+    private UserRelationshipRepository relationshipRepository;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -77,11 +83,38 @@ public class CharacterPostService {
         return characterPostMapper.toDto(post, currentUserId);
     }
 
-    @Cacheable(value = "posts", key = "{#page, #size, #userEmail}")
-    public List<CharacterPostDTO> findAllPosts(int page, int size, String userEmail) {
-        log.debug("Finding posts with pagination: page={}, size={}", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        Page<CharacterPost> posts = postRepository.findAllWithLikesAndComments(pageable);
+    @Cacheable(value = "posts", key = "{#page, #size, #userEmail, #sortBy, #sortDirection, #anime, #genres}")
+    public List<CharacterPostDTO> findAllPosts(
+            int page, 
+            int size, 
+            String userEmail,
+            String sortBy,
+            String sortDirection,
+            String anime,
+            List<String> genres) {
+        log.debug("Finding posts with pagination: page={}, size={}, sortBy={}, sortDirection={}, anime={}, genres={}", 
+                page, size, sortBy, sortDirection, anime, genres);
+        
+        // Create sort object
+        Sort sort = Sort.by(
+            sortDirection != null && sortDirection.equalsIgnoreCase("desc") ? 
+            Sort.Direction.DESC : Sort.Direction.ASC,
+            sortBy != null ? sortBy : "createdAt"
+        );
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Get posts based on filters
+        Page<CharacterPost> posts;
+        if (anime != null && !anime.isEmpty()) {
+            posts = postRepository.findByAnimeContainingIgnoreCase(anime, pageable);
+        } else if (genres != null && !genres.isEmpty()) {
+            // TODO: Implement genre filtering
+            posts = postRepository.findAllWithLikesAndComments(pageable);
+        } else {
+            posts = postRepository.findAllWithLikesAndComments(pageable);
+        }
+        
         Long currentUserId = userEmail != null ? userService.getUserByEmail(userEmail).getId() : null;
 
         return posts.stream()
@@ -191,4 +224,37 @@ public class CharacterPostService {
             throw new InternalViolationException(InternalViolationType.FILE_TOO_LARGE);
         }
     }
+
+    // @Cacheable(value = "recommended_posts", key = "{#userEmail, #page, #size}")
+    public List<CharacterPostDTO> getRecommendedPosts(String userEmail, int page, int size) {
+        log.debug("Getting recommended posts for user: {}", userEmail);
+        
+        UserProfile currentUser = userService.getUserByEmail(userEmail);
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Get posts from users that the current user follows
+        List<UserProfile> followingUsers = relationshipRepository.findFollowingByUser(currentUser);
+        List<Long> followingUserIds = followingUsers.stream()
+                .map(UserProfile::getId)
+                .collect(Collectors.toList());
+        
+        log.debug("Following users count: {}", followingUserIds.size());
+
+        // If user has no following, return empty list
+        if (followingUserIds.isEmpty()) {
+            log.debug("User has no following, returning empty list");
+            return new ArrayList<>();
+        }
+
+        // Get posts from followed users
+        Page<CharacterPost> followedUsersPosts = postRepository.findByUserIdInOrderByCreatedAtDesc(
+                followingUserIds, pageable);
+        
+        log.debug("Found {} posts from followed users", followedUsersPosts.getContent().size());
+
+        return followedUsersPosts.getContent().stream()
+                .map(post -> characterPostMapper.toDto(post, currentUser.getId()))
+                .collect(Collectors.toList());
+    }
+
 }

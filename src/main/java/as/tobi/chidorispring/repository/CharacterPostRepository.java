@@ -1,13 +1,15 @@
 package as.tobi.chidorispring.repository;
 
-import as.tobi.chidorispring.entity.CharacterPost;
-import io.lettuce.core.dynamic.annotation.Param;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
+
+import as.tobi.chidorispring.entity.CharacterPost;
+import io.lettuce.core.dynamic.annotation.Param;
 
 @Repository
 public interface CharacterPostRepository extends JpaRepository<CharacterPost, Long> {
@@ -30,4 +32,8 @@ public interface CharacterPostRepository extends JpaRepository<CharacterPost, Lo
 
     @Query("SELECT p FROM CharacterPost p LEFT JOIN FETCH p.likes WHERE p IN (SELECT f.characterPost FROM UserFavoritePost f WHERE f.user.id = :userId)")
     List<CharacterPost> findFavoritePostsByUserId(@Param("userId") Long userId);
+
+    Page<CharacterPost> findByUserIdInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
+
+    Page<CharacterPost> findByUserIdNotInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
 }

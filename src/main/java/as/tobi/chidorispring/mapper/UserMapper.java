@@ -1,21 +1,22 @@
 package as.tobi.chidorispring.mapper;
 
-import as.tobi.chidorispring.dto.auth.RegisterRequest;
-import as.tobi.chidorispring.dto.characterPost.UserCharacterPostDTO;
-import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
-import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
-import as.tobi.chidorispring.entity.CharacterPost;
-import as.tobi.chidorispring.entity.UserFavoritePost;
-import as.tobi.chidorispring.entity.UserProfile;
-import as.tobi.chidorispring.enums.UserRole;
-import as.tobi.chidorispring.repository.UserFavoritePostRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import as.tobi.chidorispring.dto.auth.RegisterRequest;
+import as.tobi.chidorispring.dto.characterPost.UserCharacterPostDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileShortDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
+import as.tobi.chidorispring.entity.CharacterPost;
+import as.tobi.chidorispring.entity.UserProfile;
+import as.tobi.chidorispring.enums.UserRole;
+import as.tobi.chidorispring.repository.UserFavoritePostRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -99,6 +100,14 @@ public class UserMapper {
                 .likeCount(post.getLikes().size()) // Calculate like count
                 .commentCount(post.getComments().size()) // Calculate comment count
                 .isFavorited(isFavorited)
+                .build();
+    }
+
+    public UserProfileShortDTO toUserProfileShortDto(UserProfile user) {
+        return UserProfileShortDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
 }
