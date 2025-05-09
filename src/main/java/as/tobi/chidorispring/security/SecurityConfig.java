@@ -21,7 +21,6 @@ class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
                         .requestMatchers("/ws-chat/**").permitAll()
-                        .requestMatchers("/api/relationships/**").permitAll()
                         .requestMatchers("/api/users/avatar").authenticated()
                         .requestMatchers("/api/posts/**").authenticated()
                         .anyRequest().authenticated()
@@ -29,7 +28,7 @@ class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);  // Добавляем фильтр JWT
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
