@@ -50,6 +50,10 @@ public class UserProfile implements UserDetails {
     @Size(max = 50, message = "Last name must not exceed 50 characters")
     private String lastName;
 
+    @Size(max = 500, message = "Bio must not exceed 500 characters")
+    @Column(length = 500)
+    private String bio;
+
     @Pattern(regexp = "^(https?://.*\\.(?:png|jpg|jpeg|gif))?$", message = "Profile image URL must be a valid image URL")
     private String profileImageUrl;
 

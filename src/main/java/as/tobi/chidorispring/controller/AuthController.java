@@ -30,6 +30,8 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
+        userService.updateLastLogin(request.getEmail());
+
         String accessToken = jwtUtil.generateToken(request.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(request.getEmail());
 
@@ -42,5 +44,4 @@ public class AuthController {
         UserProfile user = userService.saveUser(request);
         return ResponseEntity.ok(new RegisterResponse(user.getId(), "Registration successful"));
     }
-
 }

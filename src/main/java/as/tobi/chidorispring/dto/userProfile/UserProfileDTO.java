@@ -13,6 +13,7 @@ public class UserProfileDTO {
     private String username;
     private String email;
     private UserRole role;
+    private String bio;
     private String firstName;
     private String lastName;
     private String profileImageUrl;
