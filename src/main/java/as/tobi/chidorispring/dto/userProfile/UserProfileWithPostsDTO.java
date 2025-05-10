@@ -15,6 +15,7 @@ public class UserProfileWithPostsDTO implements Serializable {
     private Long id;
     private String username;
     private String email;
+    private String bio;
     private UserRole role;
     private String firstName;
     private String lastName;
