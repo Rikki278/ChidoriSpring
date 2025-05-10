@@ -8,6 +8,7 @@ import as.tobi.chidorispring.dto.userProfile.UserProfileWithPostsDTO;
 import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.UserFavoritePost;
 import as.tobi.chidorispring.entity.UserProfile;
+import as.tobi.chidorispring.enums.UserRole;
 import as.tobi.chidorispring.exceptions.InternalViolationException;
 import as.tobi.chidorispring.exceptions.InternalViolationType;
 import as.tobi.chidorispring.mapper.CharacterPostMapper;
@@ -17,6 +18,7 @@ import as.tobi.chidorispring.repository.UserFavoritePostRepository;
 import as.tobi.chidorispring.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -138,6 +140,7 @@ public class UserService implements UserDetailsService {
         if (request.getEmail() != null) user.setEmail(request.getEmail());
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getBio() != null) user.setBio(request.getBio());
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
         return userMapper.toUserProfileDto(user);
@@ -192,5 +195,12 @@ public class UserService implements UserDetailsService {
         return favoritePosts.stream()
                 .map(post -> characterPostMapper.toDto(post, user.getId()))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateLastLogin(String email) {
+        UserProfile user = getUserByEmail(email);
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
     }
 }
