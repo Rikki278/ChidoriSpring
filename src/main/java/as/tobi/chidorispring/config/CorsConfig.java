@@ -14,14 +14,24 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOrigin("http://localhost:5173");
+        // Allow all origins for development
+        config.addAllowedOriginPattern("*");
 
-        config.setAllowCredentials(true);
+        // Allow common HTTP methods
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("PATCH");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("OPTIONS");
 
+        // Allow common headers
         config.addAllowedHeader("*");
 
-        config.addAllowedMethod("*");
+        // Allow credentials (cookies, authorization headers)
+        config.setAllowCredentials(true);
 
+        // Apply this configuration to all paths
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);
