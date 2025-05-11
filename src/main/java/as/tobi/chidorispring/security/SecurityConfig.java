@@ -28,11 +28,11 @@ class SecurityConfig {
 
                         // Admin only endpoints
                         .requestMatchers("/api/users/*/delete").hasRole("ADMIN")
-                        .requestMatchers("/api/users/all").hasRole("ADMIN")
                         .requestMatchers("/api/posts/*/delete").hasRole("ADMIN")
 
                         // User specific endpoints (users can only access their own data)
                         .requestMatchers("/api/users/avatar").authenticated()
+                        .requestMatchers("/api/users/all").authenticated()
                         .requestMatchers("/api/users/profile").authenticated()
                         .requestMatchers("/api/users/profile-posts").authenticated()
                         .requestMatchers("/api/users/{userId}").access((authentication, context) -> {
