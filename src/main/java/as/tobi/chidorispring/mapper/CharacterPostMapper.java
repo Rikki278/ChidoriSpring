@@ -8,6 +8,7 @@ import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.CharacterPostComment;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.repository.UserFavoritePostRepository;
+import as.tobi.chidorispring.repository.LikeRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,12 @@ public class CharacterPostMapper {
     @Autowired
     private UserFavoritePostRepository userFavoritePostRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
     public CharacterPostDTO toDto(CharacterPost post, Long currentUserId) {
         boolean isFavorited = currentUserId != null && userFavoritePostRepository.existsByUserIdAndCharacterPostId(currentUserId, post.getId());
+        boolean isLiked = currentUserId != null && likeRepository.existsByCharacterPostIdAndUserId(post.getId(), currentUserId);
 
         return CharacterPostDTO.builder()
                 .id(post.getId())
@@ -37,6 +42,7 @@ public class CharacterPostMapper {
                 .likeCount(post.getLikes().size()) // Calculate like count
                 .commentCount(post.getComments().size()) // Calculate comment count
                 .isFavorited(isFavorited)
+                .isLiked(isLiked)
                 .build();
     }
 
