@@ -22,5 +22,6 @@ public class UserCharacterPostDTO implements Serializable {
     private long likeCount; // Added for like count
     private long commentCount; // Added for comment count
     private boolean isFavorited; // Added for favorite status
+    private boolean isLiked; // Added to indicate if the post is liked by the current user
 }
 

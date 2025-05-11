@@ -16,6 +16,7 @@ import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.UserProfile;
 import as.tobi.chidorispring.enums.UserRole;
 import as.tobi.chidorispring.repository.UserFavoritePostRepository;
+import as.tobi.chidorispring.repository.LikeRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -24,13 +25,15 @@ public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
     private final UserFavoritePostRepository userFavoritePostRepository;
+    private final LikeRepository likeRepository;
 
     private final String pfp = "https://res.cloudinary.com/djmpkplp1/image/upload/v1746816860/ChatGPT_Image_9_%D1%82%D1%80%D0%B0%D0%B2._2025_%D1%80._20_41_06_myu8yb.png";
 
     @Autowired
-    public UserMapper(PasswordEncoder passwordEncoder, UserFavoritePostRepository userFavoritePostRepository) {
+    public UserMapper(PasswordEncoder passwordEncoder, UserFavoritePostRepository userFavoritePostRepository, LikeRepository likeRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userFavoritePostRepository = userFavoritePostRepository;
+        this.likeRepository = likeRepository;
     }
 
     public UserProfile toUserEntity(RegisterRequest request) {
@@ -92,6 +95,7 @@ public class UserMapper {
 
     private UserCharacterPostDTO toCharacterPostDto(CharacterPost post, Long currentUserId) {
         boolean isFavorited = userFavoritePostRepository.existsByUserIdAndCharacterPostId(currentUserId, post.getId());
+        boolean isLiked = likeRepository.existsByCharacterPostIdAndUserId(post.getId(), currentUserId);
 
         return UserCharacterPostDTO.builder()
                 .id(post.getId())
@@ -105,6 +109,7 @@ public class UserMapper {
                 .likeCount(post.getLikes().size()) // Calculate like count
                 .commentCount(post.getComments().size()) // Calculate comment count
                 .isFavorited(isFavorited)
+                .isLiked(isLiked)
                 .build();
     }
 
