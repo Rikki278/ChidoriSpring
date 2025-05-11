@@ -49,7 +49,6 @@ public class CharacterPostService {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
     @Transactional
-    @CacheEvict(value = {"posts", "post"}, allEntries = true)
     public CharacterPostDTO createPost(CharacterPost post,
                                        MultipartFile characterImage,
                                        UserProfile user) {
@@ -71,7 +70,6 @@ public class CharacterPostService {
         return characterPostMapper.toDto(savedPost, user.getId());
     }
 
-    @Cacheable(value = "post", key = "#postId")
     public CharacterPostDTO findPostById(Long postId, String userEmail) {
         log.debug("Finding post by ID: {}", postId);
         CharacterPost post = postRepository.findById(postId)
@@ -123,7 +121,6 @@ public class CharacterPostService {
     }
 
     @Transactional
-    @CacheEvict(value = {"posts", "post"}, allEntries = true)
     public CharacterPostDTO updatePost(Long postId,
                                        String updateDataJson,
                                        MultipartFile newCharacterImage,
@@ -156,7 +153,6 @@ public class CharacterPostService {
     }
 
     @Transactional
-    @CacheEvict(value = {"posts", "post"}, allEntries = true)
     public void deletePost(Long postId, Long currentUserId) {
         log.debug("Deleting post ID: {} by user ID: {}", postId, currentUserId);
         CharacterPost post = postRepository.findById(postId)
