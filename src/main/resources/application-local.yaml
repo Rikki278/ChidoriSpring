@@ -47,5 +47,11 @@ spring:
     api-key: ${CLOUDINARY_API_KEY}
     api-secret: ${CLOUDINARY_API_SECRET}
 
+  ai:
+    openai:
+      api-key: ${GPT_KEY}
+      base-url: https://api.openai.com/v1/chat/completions
+      model: gpt-3.5-turbo
+
 server:
   port: 8080

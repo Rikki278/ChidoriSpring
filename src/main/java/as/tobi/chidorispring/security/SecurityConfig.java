@@ -25,6 +25,7 @@ class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
                         .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/api/recommendations/**").permitAll()
 
                         // Admin only endpoints
                         .requestMatchers("/api/users/*/delete").hasRole("ADMIN")

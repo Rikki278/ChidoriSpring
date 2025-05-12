@@ -1,15 +1,16 @@
 package as.tobi.chidorispring.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import as.tobi.chidorispring.entity.CharacterPost;
-import io.lettuce.core.dynamic.annotation.Param;
 
 @Repository
 public interface CharacterPostRepository extends JpaRepository<CharacterPost, Long> {
@@ -36,4 +37,23 @@ public interface CharacterPostRepository extends JpaRepository<CharacterPost, Lo
     Page<CharacterPost> findByUserIdInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
 
     Page<CharacterPost> findByUserIdNotInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
+
+    List<CharacterPost> findTop10ByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @Query("SELECT cp FROM CharacterPost cp WHERE cp.anime IN :animeList")
+    List<CharacterPost> findByAnimeIn(@org.springframework.data.repository.query.Param("animeList") List<String> animeList);
+
+    @Query("SELECT cp FROM CharacterPost cp JOIN cp.animeGenre g WHERE g IN :genres")
+    List<CharacterPost> findByAnimeGenreIn(@org.springframework.data.repository.query.Param("genres") List<String> genres);
+
+    @Query("SELECT cp FROM CharacterPost cp WHERE cp.characterName IN :characterNames")
+    List<CharacterPost> findByCharacterNameIn(@org.springframework.data.repository.query.Param("characterNames") List<String> characterNames);
+
+    @Query("SELECT cp FROM CharacterPost cp " +
+            "LEFT JOIN FETCH cp.animeGenre " +
+            "WHERE cp.id = :id")
+    Optional<CharacterPost> findByIdWithGenres(@Param("id") Long id);
+
+    @Query(value = "SELECT g.anime_genre FROM character_post_genres g WHERE g.character_post_id = :postId", nativeQuery = true)
+    List<String> findGenresByCharacterPostId(@Param("postId") Long postId);
 }
