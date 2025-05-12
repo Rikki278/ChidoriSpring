@@ -203,4 +203,14 @@ public class UserService implements UserDetailsService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    public List<UserProfileDTO> getUsersByUsername(String username) {
+        List<UserProfile> userProfiles = userRepository.findByUsernameContainingIgnoreCase(username);
+        if (userProfiles.isEmpty()) {
+            new InternalViolationException(InternalViolationType.USER_IS_NOT_EXISTS);
+        }
+        return userProfiles.stream()
+                .map(userMapper::toUserProfileDto)
+                .collect(Collectors.toList());
+    }
 }

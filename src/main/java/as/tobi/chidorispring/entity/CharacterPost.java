@@ -32,11 +32,12 @@ public class CharacterPost {
     private String anime;
 
     @NotEmpty(message = "Anime genres cannot be empty")
-    @Size(max = 50, message = "Each anime genre must not exceed 50 characters")
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "character_post_genres", joinColumns = @JoinColumn(name = "character_post_id"))
     @Column(name = "anime_genre")
-    private List<String> animeGenre;
+    @Size(max = 50, message = "Each anime genre must not exceed 50 characters")
+    @Builder.Default
+    private List<String> animeGenre = new ArrayList<>();
 
     @NotBlank(message = "Description cannot be empty")
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
