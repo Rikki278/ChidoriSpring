@@ -88,6 +88,13 @@ public class UserController {
         return ResponseEntity.ok(userDto);
     }
 
+    @GetMapping("/search/username/{username}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<UserProfileDTO>> getUsersByUsername(@PathVariable String username) {
+        List<UserProfileDTO> users = userService.getUsersByUsername(username);
+        return ResponseEntity.ok(users);
+    }
+
 
 
 }
