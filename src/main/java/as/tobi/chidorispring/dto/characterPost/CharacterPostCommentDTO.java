@@ -1,5 +1,6 @@
 package as.tobi.chidorispring.dto.characterPost;
 
+import as.tobi.chidorispring.dto.userProfile.UserProfileShortCommentDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileShortDTO;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class CharacterPostCommentDTO implements Serializable {
     private Long id;
     private String content;
-    private UserProfileShortDTO author;
+    private UserProfileShortCommentDTO author;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -3,6 +3,7 @@ package as.tobi.chidorispring.mapper;
 import as.tobi.chidorispring.dto.characterPost.CharacterPostCommentDTO;
 import as.tobi.chidorispring.dto.characterPost.CharacterPostDTO;
 import as.tobi.chidorispring.dto.characterPost.UpdateCharacterPostDTO;
+import as.tobi.chidorispring.dto.userProfile.UserProfileShortCommentDTO;
 import as.tobi.chidorispring.dto.userProfile.UserProfileShortDTO;
 import as.tobi.chidorispring.entity.CharacterPost;
 import as.tobi.chidorispring.entity.CharacterPostComment;
@@ -55,11 +56,21 @@ public class CharacterPostMapper {
         return CharacterPostCommentDTO.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .author(toUserShortDto(comment.getUser()))
+                .author(toUserShortCommentDto(comment.getUser()))
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();
     }
+
+    private UserProfileShortCommentDTO toUserShortCommentDto(UserProfile user) {
+        return UserProfileShortCommentDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .profileImageUrl(user.getProfileImageUrl())
+                .build();
+    }
+
 
     private UserProfileShortDTO toUserShortDto(UserProfile user) {
         return UserProfileShortDTO.builder()
