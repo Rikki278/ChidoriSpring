@@ -61,7 +61,7 @@ public class JwtUtil {
 
     // Извлечение всех данных из токена
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
+        return Jwts.parser()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
